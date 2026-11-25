@@ -13,18 +13,18 @@ echo.
 
 REM 1. Auto-detect Java Installation
 if "%JAVA_HOME%"=="" (
-    if exist "C:\Program Files\Java\jdk-26.0.2" (
-        set "JAVA_HOME=C:\Program Files\Java\jdk-26.0.2"
-    ) else if exist "C:\Program Files\Java\latest" (
-        set "JAVA_HOME=C:\Program Files\Java\latest"
-    ) else (
-        for /d %%D in ("C:\Program Files\Java\jdk-*") do (
+    REM Only accept folders that really contain bin\java.exe
+    for /d %%D in ("C:\Program Files\Java\jdk-*") do (
+        if exist "%%D\bin\java.exe" set "JAVA_HOME=%%D"
+    )
+    if "!JAVA_HOME!"=="" (
+        for /d %%D in ("C:\Program Files\Java\latest\*") do (
             if exist "%%D\bin\java.exe" set "JAVA_HOME=%%D"
         )
-        if "!JAVA_HOME!"=="" (
-            for /d %%D in ("C:\Program Files\Eclipse Adoptium\jdk-*") do (
-                if exist "%%D\bin\java.exe" set "JAVA_HOME=%%D"
-            )
+    )
+    if "!JAVA_HOME!"=="" (
+        for /d %%D in ("C:\Program Files\Eclipse Adoptium\jdk-*") do (
+            if exist "%%D\bin\java.exe" set "JAVA_HOME=%%D"
         )
     )
 )
