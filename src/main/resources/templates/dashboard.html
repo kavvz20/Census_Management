@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head th:replace="~{layout/main :: head('Admin Dashboard - Census Management System')}"></head>
+<body>
+
+<div th:replace="~{layout/main :: navbar}"></div>
+<div th:replace="~{layout/main :: alerts}"></div>
+
+<main class="container-fluid px-4 py-4">
+    <!-- Header Banner -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">National Census Dashboard</h2>
+            <p class="text-muted mb-0">Overview of nationwide population statistics, households, and demographics.</p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a th:href="@{/reports}" class="btn btn-primary">
+                <i class="bi bi-bar-chart-line me-1"></i> Full Analytics &amp; Reports
+            </a>
+            <a th:href="@{/reports/export}" class="btn btn-outline-success">
+                <i class="bi bi-download me-1"></i> Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-primary text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small fw-bold text-uppercase">Total Population</div>
+                        <h3 class="fw-bold mb-0" th:text="${summary.totalPopulation}">0</h3>
+                    </div>
+                    <i class="bi bi-people fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-info text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small fw-bold text-uppercase">Households</div>
+                        <h3 class="fw-bold mb-0" th:text="${summary.totalHouseholds}">0</h3>
+                    </div>
+                    <i class="bi bi-houses fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-success text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small fw-bold text-uppercase">Male Count</div>
+                        <h3 class="fw-bold mb-0" th:text="${summary.maleCount}">0</h3>
+                    </div>
+                    <i class="bi bi-gender-male fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-warning text-dark p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-black-50 small fw-bold text-uppercase">Female Count</div>
+                        <h3 class="fw-bold mb-0" th:text="${summary.femaleCount}">0</h3>
+                    </div>
+                    <i class="bi bi-gender-female fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-secondary text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small fw-bold text-uppercase">Gender Ratio</div>
+                        <h3 class="fw-bold mb-0" th:text="${summary.genderRatio}">0</h3>
+                        <small class="text-white-50">per 1000 males</small>
+                    </div>
+                    <i class="bi bi-pie-chart fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-dark text-white p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-white-50 small fw-bold text-uppercase">Literacy Rate</div>
+                        <h3 class="fw-bold mb-0"><span th:text="${summary.literacyRate}">0</span>%</h3>
+                    </div>
+                    <i class="bi bi-book fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Gender Breakdown Chart -->
+        <div class="col-lg-6 col-xl-3">
+            <div class="card table-card h-100 p-3">
+                <h5 class="fw-bold mb-3"><i class="bi bi-gender-ambiguous text-primary me-2"></i>Gender Distribution</h5>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Groups Chart -->
+        <div class="col-lg-6 col-xl-5">
+            <div class="card table-card h-100 p-3">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-steps text-success me-2"></i>Age Group Distribution</h5>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="ageGroupChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Literacy Chart -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card table-card h-100 p-3">
+                <h5 class="fw-bold mb-3"><i class="bi bi-mortarboard text-info me-2"></i>Literacy Ratio</h5>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="literacyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Households & Actions -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card table-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Households</h5>
+                    <a th:href="@{/households}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Address</th>
+                                <th>Region</th>
+                                <th>House Type</th>
+                                <th>Members</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="h : ${recentHouseholds}">
+                                <td><span class="badge bg-light text-dark border" th:text="'#' + ${h.id}"></span></td>
+                                <td th:text="${h.address}">123 Main St</td>
+                                <td><small class="text-muted" th:text="${h.regionName}">Region</small></td>
+                                <td th:text="${h.houseType}">Pucca</td>
+                                <td><span class="badge bg-secondary" th:text="${h.memberCount} + ' members'"></span></td>
+                                <td>
+                                    <a th:href="@{'/households/' + ${h.id}}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentHouseholds)}">
+                                <td colspan="6" class="text-center py-4 text-muted">No household records found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card table-card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-2"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a th:href="@{/regions/new}" class="btn btn-outline-primary text-start py-2">
+                        <i class="bi bi-plus-circle me-2"></i> Add New Region
+                    </a>
+                    <a th:href="@{/enumerators/new}" class="btn btn-outline-primary text-start py-2">
+                        <i class="bi bi-person-plus me-2"></i> Create Enumerator Account
+                    </a>
+                    <a th:href="@{/households/new}" class="btn btn-outline-primary text-start py-2">
+                        <i class="bi bi-house-add me-2"></i> Register New Household
+                    </a>
+                    <a th:href="@{/reports}" class="btn btn-outline-info text-start py-2">
+                        <i class="bi bi-bar-chart me-2"></i> View Regional Analytics
+                    </a>
+                    <a th:href="@{/reports/export}" class="btn btn-outline-success text-start py-2">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> Download Full CSV Registry
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/main :: footer}"></div>
+
+<!-- Chart.js Scripts -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const maleCount = /*[[${summary.maleCount}]]*/ 0;
+    const femaleCount = /*[[${summary.femaleCount}]]*/ 0;
+    const otherCount = /*[[${summary.otherGenderCount}]]*/ 0;
+
+    const under18 = /*[[${ageGroups.under18}]]*/ 0;
+    const age18to35 = /*[[${ageGroups.age18to35}]]*/ 0;
+    const age36to60 = /*[[${ageGroups.age36to60}]]*/ 0;
+    const above60 = /*[[${ageGroups.above60}]]*/ 0;
+
+    const literateCount = /*[[${summary.literateCount}]]*/ 0;
+    const illiterateCount = /*[[${summary.illiterateCount}]]*/ 0;
+
+    // Gender Chart
+    new Chart(document.getElementById('genderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Male', 'Female', 'Other'],
+            datasets: [{
+                data: [maleCount, femaleCount, otherCount],
+                backgroundColor: ['#2b6cb0', '#ed64a6', '#9f7aea']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Age Groups Chart
+    new Chart(document.getElementById('ageGroupChart'), {
+        type: 'bar',
+        data: {
+            labels: ['< 18 yrs', '18 - 35 yrs', '36 - 60 yrs', '> 60 yrs'],
+            datasets: [{
+                label: 'Population',
+                data: [under18, age18to35, age36to60, above60],
+                backgroundColor: ['#48bb78', '#38b2ac', '#4299e1', '#ed8936']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    // Literacy Chart
+    new Chart(document.getElementById('literacyChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Literate', 'Illiterate'],
+            datasets: [{
+                data: [literateCount, illiterateCount],
+                backgroundColor: ['#38a169', '#e53e3e']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

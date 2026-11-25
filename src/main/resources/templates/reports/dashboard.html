@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head th:replace="~{layout/main :: head('Reports & Analytics - Census Management System')}"></head>
+<body>
+
+<div th:replace="~{layout/main :: navbar}"></div>
+<div th:replace="~{layout/main :: alerts}"></div>
+
+<main class="container-fluid px-4 py-4">
+    <!-- Header & Export Action -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold mb-1">Census Analytics &amp; Reports</h2>
+            <p class="text-muted mb-0">Filtered regional demographic indicators, literacy, age segmentation, and CSV downloads.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a th:href="@{/reports/export(regionId=${selectedRegionId})}" class="btn btn-success">
+                <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Download Region CSV Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Region Filter Form -->
+    <div class="card table-card p-3 mb-4">
+        <form th:action="@{/reports}" method="get" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-funnel-fill text-primary"></i></span>
+                    <select name="regionId" class="form-select fs-6">
+                        <option value="">-- National Overview (All Regions Combined) --</option>
+                        <option th:each="r : ${regions}" th:value="${r.id}" th:text="${r.fullName}"
+                                th:selected="${r.id == selectedRegionId}">Region</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-arrow-repeat me-1"></i> Update Report
+                </button>
+                <a th:href="@{/reports}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Filter Indicator -->
+    <div class="alert alert-info py-2 d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <i class="bi bi-geo-alt-fill me-1"></i> Currently displaying data for:
+            <strong th:text="${summary.regionName}">National</strong>
+        </div>
+        <span class="badge bg-primary" th:text="${summary.totalPopulation} + ' Citizens Counted'"></span>
+    </div>
+
+    <!-- Summary Statistics Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-primary text-white p-3">
+                <div class="text-white-50 small fw-bold text-uppercase">Total Population</div>
+                <h3 class="fw-bold mb-0" th:text="${summary.totalPopulation}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-info text-white p-3">
+                <div class="text-white-50 small fw-bold text-uppercase">Households</div>
+                <h3 class="fw-bold mb-0" th:text="${summary.totalHouseholds}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-success text-white p-3">
+                <div class="text-white-50 small fw-bold text-uppercase">Male Population</div>
+                <h3 class="fw-bold mb-0" th:text="${summary.maleCount}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-warning text-dark p-3">
+                <div class="text-black-50 small fw-bold text-uppercase">Female Population</div>
+                <h3 class="fw-bold mb-0" th:text="${summary.femaleCount}">0</h3>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-secondary text-white p-3">
+                <div class="text-white-50 small fw-bold text-uppercase">Gender Ratio</div>
+                <h3 class="fw-bold mb-0" th:text="${summary.genderRatio}">0</h3>
+                <small class="text-white-50">Females / 1000 Males</small>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card bg-dark text-white p-3">
+                <div class="text-white-50 small fw-bold text-uppercase">Literacy Rate</div>
+                <h3 class="fw-bold mb-0"><span th:text="${summary.literacyRate}">0</span>%</h3>
+                <small class="text-white-50"><span th:text="${summary.literateCount}"></span> Literate</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts -->
+    <div class="row g-4 mb-4">
+        <!-- Gender Doughnut -->
+        <div class="col-lg-4">
+            <div class="card table-card p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Gender Composition</h5>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="genderReportChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Groups Bar -->
+        <div class="col-lg-4">
+            <div class="card table-card p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-success me-2"></i>Age Demographics</h5>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="ageReportChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Literacy Pie -->
+        <div class="col-lg-4">
+            <div class="card table-card p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-book-half text-info me-2"></i>Literacy Ratio</h5>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="literacyReportChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Occupation Breakdown Table -->
+    <div class="card table-card p-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-briefcase-fill text-warning me-2"></i>Employment &amp; Occupation Breakdown</h5>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Occupation Sector</th>
+                        <th>Citizen Count</th>
+                        <th>Percentage Share</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry : ${summary.occupationBreakdown}">
+                        <td class="fw-semibold" th:text="${entry.key}">Employed</td>
+                        <td th:text="${entry.value}">10</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 fw-semibold"
+                                      th:text="${summary.totalPopulation > 0 ? #numbers.formatDecimal((entry.value * 100.0) / summary.totalPopulation, 1, 1) + '%' : '0%'}">50%</span>
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar"
+                                         th:style="'width: ' + ${summary.totalPopulation > 0 ? (entry.value * 100.0) / summary.totalPopulation : 0} + '%'"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#maps.isEmpty(summary.occupationBreakdown)}">
+                        <td colspan="3" class="text-center text-muted py-3">No occupation data available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/main :: footer}"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const maleCount = /*[[${summary.maleCount}]]*/ 0;
+    const femaleCount = /*[[${summary.femaleCount}]]*/ 0;
+    const otherCount = /*[[${summary.otherGenderCount}]]*/ 0;
+
+    const under18 = /*[[${ageGroups.under18}]]*/ 0;
+    const age18to35 = /*[[${ageGroups.age18to35}]]*/ 0;
+    const age36to60 = /*[[${ageGroups.age36to60}]]*/ 0;
+    const above60 = /*[[${ageGroups.above60}]]*/ 0;
+
+    const literateCount = /*[[${summary.literateCount}]]*/ 0;
+    const illiterateCount = /*[[${summary.illiterateCount}]]*/ 0;
+
+    new Chart(document.getElementById('genderReportChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Male', 'Female', 'Other'],
+            datasets: [{
+                data: [maleCount, femaleCount, otherCount],
+                backgroundColor: ['#2b6cb0', '#ed64a6', '#9f7aea']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    new Chart(document.getElementById('ageReportChart'), {
+        type: 'bar',
+        data: {
+            labels: ['< 18 yrs', '18-35 yrs', '36-60 yrs', '> 60 yrs'],
+            datasets: [{
+                label: 'Population',
+                data: [under18, age18to35, age36to60, above60],
+                backgroundColor: ['#48bb78', '#38b2ac', '#4299e1', '#ed8936']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    new Chart(document.getElementById('literacyReportChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Literate', 'Illiterate'],
+            datasets: [{
+                data: [literateCount, illiterateCount],
+                backgroundColor: ['#38a169', '#e53e3e']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

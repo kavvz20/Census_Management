@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head th:replace="~{layout/main :: head('Edit Citizen Record - Census Management System')}"></head>
+<body>
+
+<div th:replace="~{layout/main :: navbar}"></div>
+<div th:replace="~{layout/main :: alerts}"></div>
+
+<main class="container py-4" style="max-width: 750px;">
+    <div class="card table-card p-4">
+        <div class="mb-4 pb-2 border-bottom">
+            <h3 class="fw-bold mb-1">Edit Citizen Census Record</h3>
+            <p class="text-muted mb-0">Update demographic and personal details for national record keeping.</p>
+        </div>
+
+        <form th:action="@{'/persons/' + ${person.id} + '/edit'}" th:object="${person}" method="post">
+            <input type="hidden" th:field="*{householdId}">
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="idNumber" class="form-label fw-semibold">National ID / Aadhaar Number <span class="text-danger">*</span></label>
+                    <input type="text" id="idNumber" th:field="*{idNumber}" class="form-control"
+                           th:classappend="${#fields.hasErrors('idNumber')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{idNumber}">Valid unique ID is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="name" class="form-label fw-semibold">Full Legal Name <span class="text-danger">*</span></label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{name}">Name is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                    <select id="gender" th:field="*{gender}" class="form-select"
+                            th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid'" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{gender}">Gender is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="dob" class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" id="dob" th:field="*{dob}" class="form-control"
+                           th:classappend="${#fields.hasErrors('dob')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{dob}">Date of birth is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="relation" class="form-label fw-semibold">Relationship to Head <span class="text-danger">*</span></label>
+                    <select id="relation" th:field="*{relation}" class="form-select"
+                            th:classappend="${#fields.hasErrors('relation')} ? 'is-invalid'" required>
+                        <option value="Head">Head of Family</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Son">Son</option>
+                        <option value="Daughter">Daughter</option>
+                        <option value="Father">Father</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Brother">Brother</option>
+                        <option value="Sister">Sister</option>
+                        <option value="Daughter-in-Law">Daughter-in-Law</option>
+                        <option value="Son-in-Law">Son-in-Law</option>
+                        <option value="Grandchild">Grandchild</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{relation}">Relation is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="maritalStatus" class="form-label fw-semibold">Marital Status <span class="text-danger">*</span></label>
+                    <select id="maritalStatus" th:field="*{maritalStatus}" class="form-select"
+                            th:classappend="${#fields.hasErrors('maritalStatus')} ? 'is-invalid'" required>
+                        <option value="Single">Single / Unmarried</option>
+                        <option value="Married">Married</option>
+                        <option value="Widowed">Widowed</option>
+                        <option value="Divorced">Divorced / Separated</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{maritalStatus}">Marital status is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="education" class="form-label fw-semibold">Educational Qualification <span class="text-danger">*</span></label>
+                    <select id="education" th:field="*{education}" class="form-select"
+                            th:classappend="${#fields.hasErrors('education')} ? 'is-invalid'" required>
+                        <option value="Illiterate">Illiterate (No formal education)</option>
+                        <option value="Primary">Primary School (Class 1-5)</option>
+                        <option value="Secondary">Secondary School (Class 6-10)</option>
+                        <option value="Higher Secondary">Higher Secondary (Class 11-12)</option>
+                        <option value="Diploma">Diploma / Vocational</option>
+                        <option value="Graduate">Graduate (Bachelor's Degree)</option>
+                        <option value="Post Graduate">Post Graduate (Master's Degree)</option>
+                        <option value="Doctorate">Doctorate / PhD</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{education}">Education level is required</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="occupation" class="form-label fw-semibold">Occupation <span class="text-danger">*</span></label>
+                    <select id="occupation" th:field="*{occupation}" class="form-select"
+                            th:classappend="${#fields.hasErrors('occupation')} ? 'is-invalid'" required>
+                        <option value="Employed">Employed (Salaried / Private / Govt)</option>
+                        <option value="Self-Employed">Self-Employed / Business Owner</option>
+                        <option value="Unemployed">Unemployed (Seeking work)</option>
+                        <option value="Student">Student</option>
+                        <option value="Homemaker">Homemaker</option>
+                        <option value="Retired">Retired / Senior Citizen</option>
+                        <option value="Daily Wage Laborer">Daily Wage Laborer</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{occupation}">Occupation is required</div>
+                </div>
+
+                <div class="col-md-12">
+                    <label for="nationality" class="form-label fw-semibold">Nationality</label>
+                    <input type="text" id="nationality" th:field="*{nationality}" class="form-control">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a th:href="@{'/households/' + ${person.householdId}}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check2-circle me-1"></i> Update Record
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div th:replace="~{layout/main :: footer}"></div>
+</body>
+</html>

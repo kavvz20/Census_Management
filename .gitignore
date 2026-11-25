@@ -1,0 +1,38 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+### VS Code ###
+.vscode/
+
+### Databases & Logs ###
+*.db
+*.db-journal
+*.mv.db
+*.trace.db
+data/
+*.log
+logs/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Local tools ###
+.tools/
